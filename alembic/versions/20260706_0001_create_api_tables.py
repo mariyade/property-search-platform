@@ -17,10 +17,11 @@ depends_on = None
 
 def upgrade():
     bind = op.get_bind()
+    metadata = sa.MetaData()
 
     users = sa.Table(
         "users",
-        sa.MetaData(),
+        metadata,
         sa.Column("id", sa.Integer(), primary_key=True, index=True),
         sa.Column("email", sa.String(), unique=True),
         sa.Column("username", sa.String(), unique=True),
@@ -35,7 +36,7 @@ def upgrade():
 
     search_runs = sa.Table(
         "search_runs",
-        sa.MetaData(),
+        metadata,
         sa.Column("id", sa.Integer(), primary_key=True, index=True),
         sa.Column("status", sa.String(), nullable=False, default="pending"),
         sa.Column("search_location", sa.String(), nullable=False),

@@ -1,4 +1,4 @@
-# Buy-to-Let Property Analytics Data Pipeline
+# Property Search Platform 
 
 FastAPI and Airflow project for running custom buy-to-let property searches, scraping sale/rent listings, and calculating rental yield results.
 
