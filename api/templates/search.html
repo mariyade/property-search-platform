@@ -1,0 +1,167 @@
+{% extends 'layout.html' %}
+
+{% block title %}Search Search properties{% endblock %}
+
+{% block content %}
+<section class="workspace">
+    <div class="search-panel">
+        <div class="panel-heading">
+            <h1>Search properties</h1>
+            <button type="button" class="btn btn-outline-secondary btn-sm" id="refreshRunsButton">Refresh</button>
+        </div>
+
+        <form id="searchRunForm">
+            <div class="form-row">
+                <div class="form-group col-md-4">
+                    <label for="search_location">Postcode</label>
+                    <input id="search_location" name="search_location" class="form-control" placeholder="E1 1LF" required>
+                </div>
+                <div class="form-group col-md-5">
+                    <label for="location_identifier">Location identifier</label>
+                    <input id="location_identifier" name="location_identifier" class="form-control" placeholder="POSTCODE^1327365" required>
+                </div>
+                <div class="form-group col-md-3">
+                    <label for="radius">Radius</label>
+                    <input id="radius" name="radius" type="number" step="0.25" min="0" class="form-control" placeholder="0.25" required>
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group col-md-3">
+                    <label for="min_price">Min price</label>
+                    <input id="min_price" name="min_price" type="number" min="1" class="form-control" placeholder="120000">
+                </div>
+                <div class="form-group col-md-3">
+                    <label for="max_price">Max price</label>
+                    <input id="max_price" name="max_price" type="number" min="1" class="form-control" placeholder="300000">
+                </div>
+                <div class="form-group col-md-3">
+                    <label for="min_bedrooms">Min bedrooms</label>
+                    <input id="min_bedrooms" name="min_bedrooms" type="number" min="1" class="form-control" placeholder="1">
+                </div>
+                <div class="form-group col-md-3">
+                    <label for="max_bedrooms">Max bedrooms</label>
+                    <input id="max_bedrooms" name="max_bedrooms" type="number" min="1" class="form-control" placeholder="2">
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group col-md-3">
+                    <label for="property_types">Property type</label>
+                    <select id="property_types" name="property_types" class="form-control">
+                        <option value="">All</option>
+                        <option value="detached">Detached</option>
+                        <option value="semi-detached">Semi-detached</option>
+                        <option value="terraced">Terraced</option>
+                        <option value="flat" selected>Flat</option>
+                        <option value="bungalow">Bungalow</option>
+                        <option value="land">Land</option>
+                        <option value="park-home">Park home</option>
+                    </select>
+                </div>
+                <div class="form-group col-md-3">
+                    <label for="sort_type">Sort type</label>
+                    <input id="sort_type" name="sort_type" type="number" class="form-control" placeholder="6" required>
+                </div>
+                <div class="form-group col-md-3">
+                    <label for="max_pages">Max pages</label>
+                    <input id="max_pages" name="max_pages" type="number" min="1" max="30" class="form-control" placeholder="1" required>
+                </div>
+                <div class="form-group col-md-3">
+                    <label for="include_sstc">Include SSTC</label>
+                    <select id="include_sstc" name="include_sstc" class="form-control">
+                        <option value="on" selected>On</option>
+                        <option value="">Off</option>
+                    </select>
+                </div>
+            </div>
+
+            <input type="hidden" name="channel" value="BUY">
+            <input type="hidden" name="transaction_type" value="BUY">
+            <input type="hidden" name="display_location_identifier" value="undefined">
+            <input type="hidden" name="result_index" value="0">
+
+            <button type="submit" class="btn btn-primary">Create search run</button>
+            <span id="formStatus" class="form-status"></span>
+        </form>
+    </div>
+
+    <div class="content-grid">
+        <section class="table-panel">
+            <div class="panel-heading">
+                <h2>Runs</h2>
+            </div>
+            <div class="table-responsive">
+                <table class="table table-sm table-hover">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Postcode</th>
+                            <th>Status</th>
+                            <th>Budget</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="searchRunsTable"></tbody>
+                </table>
+            </div>
+        </section>
+
+        <section class="table-panel">
+            <div class="panel-heading">
+                <h2>Results</h2>
+                <div class="pager">
+                    <button type="button" class="btn btn-outline-secondary btn-sm" id="previousResultsButton">Previous</button>
+                    <button type="button" class="btn btn-outline-secondary btn-sm" id="nextResultsButton">Next</button>
+                </div>
+            </div>
+            <div id="resultsMeta" class="results-meta"></div>
+            <div class="deals-dashboard">
+                <div class="dashboard-header">
+                    <h3><span aria-hidden="true">🏠</span> Property Deals Dashboard</h3>
+                </div>
+                <div class="dashboard-grid">
+                    <div>
+                        <span class="dashboard-label">Search postcode</span>
+                        <strong id="dashboardPostcode">--</strong>
+                    </div>
+                    <div>
+                        <span class="dashboard-label">Max price</span>
+                        <strong id="dashboardMaxPrice">--</strong>
+                    </div>
+                    <div>
+                        <span class="dashboard-label">Max bedrooms</span>
+                        <strong id="dashboardMaxBedrooms">--</strong>
+                    </div>
+                </div>
+                <div class="dashboard-ai-note">
+                    <span aria-hidden="true">⭐</span> AI recommendation: to be added later
+                </div>
+            </div>
+            <p class="calculation-note">
+                Gross yield = estimated annual rent / price.
+            <p class="calculation-note">
+            </p>
+                Net yield = annual rent after 5% void time, minus 1% maintenance, 10% management fee,
+                and mortgage interest estimated at 75% LTV and 5.15% rate, then divided by price.
+            </p>
+            <div class="table-responsive">
+                <table class="table table-sm table-hover">
+                    <thead>
+                        <tr>
+                            <th>Address</th>
+                            <th>Price</th>
+                            <th>Rooms</th>
+                            <th>Annual rent</th>
+                            <th>Gross Yield</th>
+                            <th>Net Yield</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody id="resultsTable"></tbody>
+                </table>
+            </div>
+        </section>
+    </div>
+</section>
+{% endblock %}

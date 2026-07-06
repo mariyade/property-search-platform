@@ -8,6 +8,7 @@ terraform.tfvars
 terraform.tfvars.json
 crash.log
 *.log
+.venv*/
 __pycache__/
 spark-app/data_land_registry/*.csv
 output/*

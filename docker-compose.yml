@@ -9,6 +9,11 @@ services:
       - postgres_data:/var/lib/postgresql/data
     ports:
       - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U airflow -d airflow"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
 
   pgadmin:
     image: dpage/pgadmin4
@@ -18,20 +23,30 @@ services:
     ports:
       - "5050:80"
     depends_on:
-      - postgres
-  
-  spark:
-    image: bitnami/spark:latest
-    environment:
-      - SPARK_MODE=master
+      postgres:
+        condition: service_healthy
+
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile.api
+    command: uvicorn api.main:app --host 0.0.0.0 --port 8000 --reload
     ports:
-      - "7077:7077"
-      - "8081:8080"
+      - "8000:8000"
     volumes:
-      - ./spark-app:/opt/spark-app
-      - ./spark-app/data_land_registry:/opt/spark-data  
-      - ./dags/data:/opt/spark-dags-data
-      - ./output:/opt/airflow/output
+      - .:/app
+    environment:
+      DATABASE_URL: postgresql+psycopg2://airflow:airflow@postgres:5432/airflow
+      AIRFLOW_BASE_URL: http://airflow:8080
+      AIRFLOW_USERNAME: admin
+      AIRFLOW_PASSWORD: admin
+      SECRET_KEY: dev-only-change-this-secret-key
+      ALGORITHM: HS256
+    depends_on:
+      postgres:
+        condition: service_healthy
+      airflow:
+        condition: service_started
   
   airflow:
     build: .
@@ -40,6 +55,7 @@ services:
       - "8080:8080"
     volumes:
       - ./entrypoint.sh:/opt/airflow/entrypoint.sh
+      - ./app_config.py:/opt/airflow/app_config.py
       - ./dags:/opt/airflow/dags
       - ./dags/data:/opt/airflow/dags/data 
       - ./terraform/keys:/opt/airflow/terraform/keys
@@ -53,9 +69,12 @@ services:
       AIRFLOW__CORE__LOAD_EXAMPLES: "false"
       AIRFLOW__CORE__EXECUTOR: LocalExecutor
       AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: postgresql+psycopg2://airflow:airflow@postgres/airflow
+      AIRFLOW__API__AUTH_BACKENDS: airflow.api.auth.backend.basic_auth,airflow.api.auth.backend.session
+      DATABASE_URL: postgresql+psycopg2://airflow:airflow@postgres:5432/airflow
       GOOGLE_APPLICATION_CREDENTIALS: /opt/airflow/terraform/keys/my-creds.json
     depends_on:
-      - postgres
+      postgres:
+        condition: service_healthy
     entrypoint: /opt/airflow/entrypoint.sh
 
 volumes:

@@ -1,6 +1,6 @@
 # Buy-to-Let Property Analytics Data Pipeline
 
-End-to-end data pipeline to automate the scraping, processing, and analysis of buy-to-let property listings across key UK cities.
+FastAPI and Airflow project for running custom buy-to-let property searches, scraping sale/rent listings, and calculating rental yield results.
 
 <img width="628" height="448" alt="Screenshot 2025-07-18 at 00 23 07" src="https://github.com/user-attachments/assets/af97baef-492b-46cb-95db-31cc2279647a" />
 
@@ -9,26 +9,19 @@ End-to-end data pipeline to automate the scraping, processing, and analysis of b
 
 ### Background
 
-This project is a proof of concept (PoC) for automating the analysis of UK buy-to-let properties with tools Spark, Airflow, PostgresSQL, GCP, Docker. The pipeline:
-- scrapes renting and sale listings from Rightmove
+This project is evolving from a proof of concept (PoC) into an API-driven product for UK buy-to-let searches. The current pipeline:
+- accepts search criteria through the FastAPI API
+- triggers an Airflow DAG for the scraping/calculation work
+- scrapes renting and sale listings
 - calculates gross and net rental yields
-- uses official UK data on property sale prices from the Land Registry
-- highlights the best properties based on rental income after costs
-- outputs results to Google Cloud Storage and BigQuery for analysis and visualization
+- stores search runs and calculated results in PostgreSQL
+- returns paginated results through the API
 
 ---
 
 ### Scope
 
-The PoC focuses on 5 major UK cities:
-
-- London  
-- Manchester  
-- Birmingham  
-- Liverpool  
-- Bristol
-
-For each city, 3 central postcodes were selected. These are defined in `data/postcode_location_map.csv` and can be updated. Filters such as bedrooms, maximum property prices, and radius can be condfigured in `dags/config/config_filters.py`. 
+The current product flow focuses on user-submitted searches. A search run stores criteria such as postcode, location identifier, radius, property type, price range, bedroom range, and maximum pages.
 
 ---
 
@@ -37,31 +30,39 @@ For each city, 3 central postcodes were selected. These are defined in `data/pos
 - **Language:** Python  
 - **Containerization:** Docker, Docker Compose  
 - **Workflow Orchestration:** Apache Airflow  
-- **Infrastructure as Code (IaC):** Terraform  
 - **Database:** PostgreSQL
-- **Cloud storage:** Google Cloud Storage (GCS)
-- **Cloud Data Warehouse:** Google BigQuery
-- **Visualization:** Google Looker Studio, Matplotlib, Seaborn  
-- **Distributed Process:** Apache Spark (for Land Registry data)
+- **API:** FastAPI
+- **Auth:** JWT bearer tokens
+- **Migrations:** Alembic
+
+---
+
+### Tests
+
+Run unit or integration tests with pytest markers:
+
+```bash
+.venv311/bin/python -m pytest -m unit
+.venv311/bin/python -m pytest -m integration
+```
+
+- `unit` tests live in `api/tests/unit`
+- `integration` tests live in `api/tests/integration`
+
+Run code checks with:
+
+```bash
+.venv311/bin/ruff check .
+.venv311/bin/ruff format --check .
+```
 
 ---
 
 ### Data Sources
 
-- **Sale Listings:** Rightmove (scraped by postcode and Rightmove-specific `LocationIdentifier`)
-- **Rental Listings:** Rightmove (scraped by postcode and room count)
+- **Sale Listings:** scraped by postcode and location identifier
+- **Rental Listings:** scraped by postcode and room count
 - **Stamp Duty:** Based on embedded UK tiered rules
-- **Land Registry:** Sold price data (2024)
-
----
-### Infrastructure Provisioning with Terraform
-
-Terraform provisions Google Cloud resources used in the pipeline:
-
-###  Provisioned Resources:
-- **Google Cloud Storage (GCS) bucket**: `buy-to-let-uk-gcp-2025`
-- **BigQuery dataset**: `buy_to_let_data_2025`
-- **Service Account** with required IAM permissions
 
 ### Outputs and Visuals
 
@@ -70,18 +71,7 @@ To see what a successful pipeline run looks like, here's a screenshot of the Air
 <img width="1124" height="514" alt="Screenshot 2025-07-22 at 08 42 03" src="https://github.com/user-attachments/assets/886ea4bb-8242-4464-8e51-bd7dbb6d7bbc" />
 
 
-- CSVs:
-  - `/opt/airflow/output/buy_listings_with_yields.csv` (all properties with calculated gross/net yields  [artifacts/buy_listings_with_yields.csv](artifacts/buy_listings_with_yields.csv)
-    
-  - /opt/airflow/output/top_20_yield.csv (top 20 by net yield)
-
-- PNG: net_yield_by_postcode.png (bar chart of average net yield by postcode and room count)
-  
-<img width="550" height="320" alt="net_yield_by_postcode" src="https://github.com/user-attachments/assets/2f506de2-7ec6-4271-b486-7af61f68e9cb" />
-
-  
-- Upload of top_20_yield.csv to **Google Cloud Storage** via `upload_to_gcs()`
-- Load into **BigQuery** via `load_csv_to_bigquery()`
+Results are stored in PostgreSQL and returned by the API.
 
 ---
 ### Data Storage
@@ -90,20 +80,13 @@ All data is stored in PostgreSQL:
 
 | Table                         | Description                           |
 |------------------------------|---------------------------------------|
-| `raw_sale_listings`          | Uncleaned sale listings               |
-| `raw_rent_listings`          | Uncleaned rental listings             |
-| `buy_listings`               | Cleaned sale listings                 |
-| `rent_listings`              | Cleaned rental listings               |
-| `buy_listings_with_yields`   | Final enriched dataset with gross/net yields |
-
----
-
-### Example Dashboard (Looker Studio)
-
-Google Looker Studio was used to experiment with visualising the final dataset.
-
-The screenshot below shows example insights from a successful run:
-<img width="828" height="648" alt="Screenshot 2025-07-18 at 00 23 07" src="https://github.com/user-attachments/assets/8b7cbff6-2edf-465f-8c47-02c28d7fbead" />
+| `users`                         | API users and roles                    |
+| `search_runs`                   | User search criteria and run status    |
+| `search_run_sale_listings`      | Raw sale listings for a search run     |
+| `search_run_rent_listings`      | Raw rental listings for a search run   |
+| `clean_search_run_sale_listings`| Cleaned sale listings for a search run |
+| `clean_search_run_rent_listings`| Cleaned rental listings for a search run |
+| `search_run_yields`             | Calculated gross/net yield results     |
 
 ---
 If you have any questions or feedback, feel free to reach out to me:

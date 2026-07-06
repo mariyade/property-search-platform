@@ -1,0 +1,19 @@
+[tool.pytest.ini_options]
+testpaths = ["api/tests"]
+pythonpath = ["."]
+markers = [
+    "unit: focused tests for functions, schemas, and services",
+    "integration: tests that exercise API routes, dependency wiring, or the test database",
+]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+extend-exclude = ["dags"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "B"]
+ignore = ["B008"]
+
+[tool.ruff.format]
+quote-style = "double"

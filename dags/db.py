@@ -1,7 +1,11 @@
 import pandas as pd
+import os
 from sqlalchemy import create_engine
 
-DB_URL = 'postgresql+psycopg2://airflow:airflow@postgres:5432/airflow'
+DB_URL = os.getenv(
+    "DATABASE_URL",
+    "postgresql+psycopg2://airflow:airflow@postgres:5432/airflow",
+)
 
 def get_connection():
     engine = create_engine(DB_URL)
