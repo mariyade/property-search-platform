@@ -36,10 +36,8 @@ def test_round_value_keeps_none_as_none():
 
 
 def test_create_search_run_assigns_owner_id(monkeypatch):
-    trigger = Mock()
-    monkeypatch.setattr(
-        "api.services.search_run_service.trigger_airflow_filtered_search_dag", trigger
-    )
+    delay = Mock()
+    monkeypatch.setattr("api.services.search_run_service.process_search_run.delay", delay)
     db = Mock()
     request = SearchRunCreate(**SEARCH_RUN_PAYLOAD)
 
@@ -49,9 +47,7 @@ def test_create_search_run_assigns_owner_id(monkeypatch):
 
 
 def test_create_search_run_persists_and_refreshes(monkeypatch):
-    monkeypatch.setattr(
-        "api.services.search_run_service.trigger_airflow_filtered_search_dag", Mock()
-    )
+    monkeypatch.setattr("api.services.search_run_service.process_search_run.delay", Mock())
     db = Mock()
     request = SearchRunCreate(**SEARCH_RUN_PAYLOAD)
 
@@ -63,14 +59,12 @@ def test_create_search_run_persists_and_refreshes(monkeypatch):
 
 
 def test_create_search_run_triggers_pipeline_after_persisting(monkeypatch):
-    trigger = Mock()
-    monkeypatch.setattr(
-        "api.services.search_run_service.trigger_airflow_filtered_search_dag", trigger
-    )
+    delay = Mock()
+    monkeypatch.setattr("api.services.search_run_service.process_search_run.delay", delay)
     db = Mock()
     db.refresh.side_effect = lambda search_run: setattr(search_run, "id", 99)
     request = SearchRunCreate(**SEARCH_RUN_PAYLOAD)
 
     search_run = create_search_run_with_pipeline_trigger(db, request, owner_id=42)
 
-    trigger.assert_called_once_with(search_run.id)
+    delay.assert_called_once_with(search_run.id)

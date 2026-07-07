@@ -2,18 +2,23 @@ services:
   postgres:
     image: postgres:14
     environment:
-      POSTGRES_USER: airflow
-      POSTGRES_PASSWORD: airflow
-      POSTGRES_DB: airflow
+      POSTGRES_USER: property_search
+      POSTGRES_PASSWORD: property_search
+      POSTGRES_DB: property_search
     volumes:
       - postgres_data:/var/lib/postgresql/data
     ports:
-      - "5432:5432"
+      - "5433:5432"
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U airflow -d airflow"]
+      test: ["CMD-SHELL", "pg_isready -U property_search -d property_search"]
       interval: 5s
       timeout: 5s
       retries: 10
+
+  redis:
+    image: redis:7
+    ports:
+      - "6379:6379"
 
   pgadmin:
     image: dpage/pgadmin4
@@ -36,46 +41,31 @@ services:
     volumes:
       - .:/app
     environment:
-      DATABASE_URL: postgresql+psycopg2://airflow:airflow@postgres:5432/airflow
-      AIRFLOW_BASE_URL: http://airflow:8080
-      AIRFLOW_USERNAME: admin
-      AIRFLOW_PASSWORD: admin
+      DATABASE_URL: postgresql+psycopg2://property_search:property_search@postgres:5432/property_search
+      REDIS_URL: redis://redis:6379/0
       SECRET_KEY: dev-only-change-this-secret-key
       ALGORITHM: HS256
     depends_on:
       postgres:
         condition: service_healthy
-      airflow:
+      redis:
         condition: service_started
-  
-  airflow:
-    build: .
-    restart: always
-    ports:
-      - "8080:8080"
-    volumes:
-      - ./entrypoint.sh:/opt/airflow/entrypoint.sh
-      - ./app_config.py:/opt/airflow/app_config.py
-      - ./dags:/opt/airflow/dags
-      - ./dags/data:/opt/airflow/dags/data 
-      - ./terraform/keys:/opt/airflow/terraform/keys
-      - ./output:/opt/airflow/output
-      - /var/run/docker.sock:/var/run/docker.sock
-      - ./spark-app/data_land_registry:/opt/spark-data
-      - ./dags/data:/opt/spark-dags-data
 
+  worker:
+    build:
+      context: .
+      dockerfile: Dockerfile.api
+    command: celery -A api.celery_app.celery_app worker --loglevel=info
+    volumes:
+      - .:/app
     environment:
-      AIRFLOW_UID: "503"
-      AIRFLOW__CORE__LOAD_EXAMPLES: "false"
-      AIRFLOW__CORE__EXECUTOR: LocalExecutor
-      AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: postgresql+psycopg2://airflow:airflow@postgres/airflow
-      AIRFLOW__API__AUTH_BACKENDS: airflow.api.auth.backend.basic_auth,airflow.api.auth.backend.session
-      DATABASE_URL: postgresql+psycopg2://airflow:airflow@postgres:5432/airflow
-      GOOGLE_APPLICATION_CREDENTIALS: /opt/airflow/terraform/keys/my-creds.json
+      DATABASE_URL: postgresql+psycopg2://property_search:property_search@postgres:5432/property_search
+      REDIS_URL: redis://redis:6379/0
     depends_on:
       postgres:
         condition: service_healthy
-    entrypoint: /opt/airflow/entrypoint.sh
+      redis:
+        condition: service_started
 
 volumes:
   postgres_data:

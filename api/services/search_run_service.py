@@ -2,7 +2,7 @@ from sqlalchemy.orm import Session
 
 from api.models import SearchRun
 from api.schemas import SearchRunCreate
-from api.services.airflow_client import trigger_airflow_filtered_search_dag
+from api.tasks.search_runs import process_search_run
 
 
 def create_search_run_with_pipeline_trigger(
@@ -19,6 +19,6 @@ def create_search_run_with_pipeline_trigger(
     db.commit()
     db.refresh(search_run)
 
-    trigger_airflow_filtered_search_dag(search_run.id)
+    process_search_run.delay(search_run.id)
 
     return search_run

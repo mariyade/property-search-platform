@@ -31,12 +31,12 @@ def test_read_search_runs_returns_only_current_user_runs(search_run, auth_overri
 
 
 def test_create_search_run_sets_owner_id(monkeypatch, test_user, auth_override):
-    def fake_trigger(search_run_id: int):
+    def fake_delay(search_run_id: int):
         return None
 
     monkeypatch.setattr(
-        "api.services.search_run_service.trigger_airflow_filtered_search_dag",
-        fake_trigger,
+        "api.services.search_run_service.process_search_run.delay",
+        fake_delay,
     )
 
     response = client.post("/search-runs/", json=SEARCH_RUN_PAYLOAD)
