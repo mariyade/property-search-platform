@@ -10,7 +10,7 @@ API docs: https://property-search-platform.onrender.com/docs
 
 ## Demo
 
-[Watch the demo video](docs/demo.mp4)
+[Watch the demo video](https://github.com/mariyade/property-search-platform/raw/main/docs/demo.mp4)
 
 <video src="docs/demo.mp4" controls width="75%"></video>
 
