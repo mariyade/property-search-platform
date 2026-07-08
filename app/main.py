@@ -3,9 +3,9 @@ from fastapi.staticfiles import StaticFiles
 
 from .routers import admin, auth, health, pages, search_run, users
 
-app = FastAPI(title="Property API")
+app = FastAPI(title="Property Search Platform")
 
-app.mount("/static", StaticFiles(directory="api/static"), name="static")
+app.mount("/static", StaticFiles(directory="app/static"), name="static")
 
 app.include_router(pages.router)
 app.include_router(health.router)

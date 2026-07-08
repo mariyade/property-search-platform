@@ -4,8 +4,8 @@ import pytest
 from fastapi import HTTPException, status
 from jose import jwt
 
-from api.models import Users
-from api.routers.auth import (
+from app.models import Users
+from app.routers.auth import (
     ALGORITHM,
     SECRET_KEY,
     authenticate_user,

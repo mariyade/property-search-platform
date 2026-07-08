@@ -1,5 +1,5 @@
 [tool.pytest.ini_options]
-testpaths = ["api/tests"]
+testpaths = ["app/tests"]
 pythonpath = ["."]
 markers = [
     "unit: focused tests for functions, schemas, and services",

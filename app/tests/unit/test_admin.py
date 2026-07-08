@@ -1,7 +1,7 @@
 import pytest
 from fastapi import HTTPException, status
 
-from api.routers.admin import require_admin
+from app.routers.admin import require_admin
 
 
 def test_require_admin_returns_admin_user():

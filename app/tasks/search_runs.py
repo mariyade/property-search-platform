@@ -1,6 +1,6 @@
-from api.celery_app import celery_app
-from api.services.search_pipeline import run_search_pipeline
-from api.services.search_run_data import update_search_run_status
+from app.celery_app import celery_app
+from app.services.search_pipeline import run_search_pipeline
+from app.services.search_run_data import update_search_run_status
 
 
 @celery_app.task(name="search_runs.process_search_run")

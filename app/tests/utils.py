@@ -4,10 +4,10 @@ from sqlalchemy import create_engine, text
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.pool import StaticPool
 
-from api.database import Base, get_db
-from api.main import app
-from api.models import SearchRun, Users
-from api.routers.auth import bcrypt_context, get_current_user
+from app.database import Base, get_db
+from app.main import app
+from app.models import SearchRun, Users
+from app.routers.auth import bcrypt_context, get_current_user
 
 SQLALCHEMY_DATABASE_URL = "sqlite://"
 

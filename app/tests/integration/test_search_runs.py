@@ -1,7 +1,7 @@
 from fastapi import status
 from sqlalchemy import text
 
-from api.tests.utils import TestingSessionLocal, client
+from app.tests.utils import TestingSessionLocal, client
 
 SEARCH_RUN_PAYLOAD = {
     "search_location": "E1 1LF",
@@ -35,7 +35,7 @@ def test_create_search_run_sets_owner_id(monkeypatch, test_user, auth_override):
         return None
 
     monkeypatch.setattr(
-        "api.services.search_run_service.process_search_run.delay",
+        "app.services.search_run_service.process_search_run.delay",
         fake_delay,
     )
 

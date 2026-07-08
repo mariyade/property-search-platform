@@ -1,4 +1,4 @@
-from api.tests.utils import client
+from app.tests.utils import client
 
 
 def test_ui_page_loads():

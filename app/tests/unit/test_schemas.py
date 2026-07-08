@@ -1,7 +1,7 @@
 import pytest
 from pydantic import ValidationError
 
-from api.schemas import SearchRunCreate
+from app.schemas import SearchRunCreate
 
 VALID_SEARCH_RUN = {
     "search_location": "E1 1LF",

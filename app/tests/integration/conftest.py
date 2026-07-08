@@ -1,4 +1,4 @@
-from api.tests.utils import (
+from app.tests.utils import (
     admin_auth_override,
     admin_user,
     auth_override,

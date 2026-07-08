@@ -183,7 +183,7 @@ All application data is stored in PostgreSQL.
 
 ```text
 ├── README.md
-├── Dockerfile.api
+├── Dockerfile
 ├── docker-compose.yml
 ├── requirements.txt
 ├── pyproject.toml
@@ -192,7 +192,7 @@ All application data is stored in PostgreSQL.
 ├── alembic
 │   ├── env.py
 │   └── versions
-├── api
+├── app
 │   ├── main.py
 │   ├── database.py
 │   ├── models.py
@@ -224,15 +224,15 @@ All application data is stored in PostgreSQL.
         └── ci.yml
 ```
 
-The `api/routers` folder contains the FastAPI route definitions.
+The `app/routers` folder contains the FastAPI route definitions.
 
-The `api/services` folder contains application and pipeline logic.
+The `app/services` folder contains application and pipeline logic.
 
-The `api/tasks` folder contains Celery task entrypoints.
+The `app/tasks` folder contains Celery task entrypoints.
 
-The `api/tests/unit` folder contains focused unit tests.
+The `app/tests/unit` folder contains focused unit tests.
 
-The `api/tests/integration` folder contains route and database integration tests.
+The `app/tests/integration` folder contains route and database integration tests.
 
 ## Pre-requisites
 
@@ -306,7 +306,7 @@ pip install -r requirements.txt
 Start command:
 
 ```bash
-alembic upgrade head && uvicorn api.main:app --host 0.0.0.0 --port $PORT
+alembic upgrade head && uvicorn app.main:app --host 0.0.0.0 --port $PORT
 ```
 
 ### Background Worker
@@ -320,7 +320,7 @@ pip install -r requirements.txt
 Start command:
 
 ```bash
-celery -A api.celery_app.celery_app worker --loglevel=info --concurrency=1 --pool=solo
+celery -A app.celery_app.celery_app worker --loglevel=info --concurrency=1 --pool=solo
 ```
 
 ### Environment Variables

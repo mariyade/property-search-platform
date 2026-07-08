@@ -1,6 +1,6 @@
 from fastapi import status
 
-from api.tests.utils import client
+from app.tests.utils import client
 
 
 def test_admin_can_read_users(test_user, admin_user, admin_auth_override):

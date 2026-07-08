@@ -6,7 +6,7 @@ from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm import Session
 from starlette import status
 
-from api.services.search_run_service import create_search_run_with_pipeline_trigger
+from app.services.search_run_service import create_search_run_with_pipeline_trigger
 
 from ..database import get_db
 from ..models import SearchRun

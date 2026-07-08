@@ -1,8 +1,8 @@
 from sqlalchemy.orm import Session
 
-from api.models import SearchRun
-from api.schemas import SearchRunCreate
-from api.tasks.search_runs import process_search_run
+from app.models import SearchRun
+from app.schemas import SearchRunCreate
+from app.tasks.search_runs import process_search_run
 
 
 def create_search_run_with_pipeline_trigger(

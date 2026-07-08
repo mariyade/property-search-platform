@@ -1,8 +1,8 @@
 from unittest.mock import Mock
 
-from api.routers.search_run import round_value
-from api.schemas import SearchRunCreate
-from api.services.search_run_service import create_search_run_with_pipeline_trigger
+from app.routers.search_run import round_value
+from app.schemas import SearchRunCreate
+from app.services.search_run_service import create_search_run_with_pipeline_trigger
 
 SEARCH_RUN_PAYLOAD = {
     "search_location": "E1 1LF",
@@ -37,7 +37,7 @@ def test_round_value_keeps_none_as_none():
 
 def test_create_search_run_assigns_owner_id(monkeypatch):
     delay = Mock()
-    monkeypatch.setattr("api.services.search_run_service.process_search_run.delay", delay)
+    monkeypatch.setattr("app.services.search_run_service.process_search_run.delay", delay)
     db = Mock()
     request = SearchRunCreate(**SEARCH_RUN_PAYLOAD)
 
@@ -47,7 +47,7 @@ def test_create_search_run_assigns_owner_id(monkeypatch):
 
 
 def test_create_search_run_persists_and_refreshes(monkeypatch):
-    monkeypatch.setattr("api.services.search_run_service.process_search_run.delay", Mock())
+    monkeypatch.setattr("app.services.search_run_service.process_search_run.delay", Mock())
     db = Mock()
     request = SearchRunCreate(**SEARCH_RUN_PAYLOAD)
 
@@ -60,7 +60,7 @@ def test_create_search_run_persists_and_refreshes(monkeypatch):
 
 def test_create_search_run_triggers_pipeline_after_persisting(monkeypatch):
     delay = Mock()
-    monkeypatch.setattr("api.services.search_run_service.process_search_run.delay", delay)
+    monkeypatch.setattr("app.services.search_run_service.process_search_run.delay", delay)
     db = Mock()
     db.refresh.side_effect = lambda search_run: setattr(search_run, "id", 99)
     request = SearchRunCreate(**SEARCH_RUN_PAYLOAD)
