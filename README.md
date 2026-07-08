@@ -77,7 +77,7 @@ The project is developed using Python.
 - **Data processing:** Pandas
 - **Containerization:** Docker, Docker Compose
 - **Deployment:** Render
-- **Testing:** Pytest
+- **Testing:** Pytest, Playwright
 - **Linting and formatting:** Ruff
 
 ## Architecture
@@ -280,6 +280,28 @@ Run integration tests:
 
 ```bash
 .venv311/bin/python -m pytest -m integration
+```
+
+Run E2E Playwright tests:
+
+The E2E Playwright tests cover
+registration, login, logout, real search-run view/delete behaviour and a stubbed search dashboard.
+
+```bash
+.venv311/bin/python -m playwright install chromium
+.venv311/bin/python -m pytest playwright/tests
+```
+
+To ruun only the register/login tests:
+
+```bash
+.venv311/bin/python -m pytest playwright/tests/test_register_login.py
+```
+
+Generate a Playwright HTML report:
+
+```bash
+.venv311/bin/python -m pytest playwright/tests --html=playwright/reports/report.html --self-contained-html
 ```
 
 The CI workflow runs formatting checks, linting, unit tests, and integration tests on GitHub Actions.

@@ -13,6 +13,9 @@ google-cloud-storage
 google-cloud-bigquery
 pytest
 pytest-asyncio
+playwright
+pytest-playwright
+pytest-html
 httpx
 pre-commit
 ruff

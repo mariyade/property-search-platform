@@ -10,5 +10,8 @@ crash.log
 *.log
 .venv*/
 __pycache__/
+playwright/test-results/
+playwright/.pytest_cache/
+playwright/reports/
 spark-app/data_land_registry/*.csv
 output/*

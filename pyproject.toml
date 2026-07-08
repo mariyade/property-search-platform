@@ -1,9 +1,10 @@
 [tool.pytest.ini_options]
 testpaths = ["app/tests"]
-pythonpath = ["."]
+pythonpath = [".", "playwright"]
 markers = [
     "unit: focused tests for functions, schemas, and services",
     "integration: tests that exercise API routes, dependency wiring, or the test database",
+    "e2e: browser tests that exercise the application through the UI",
 ]
 
 [tool.ruff]
