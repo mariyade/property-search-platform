@@ -124,7 +124,7 @@ async function createSearchRun(event) {
 
     if (!response.ok) {
         setFormStatus("");
-        await showApiError(response);
+        await handleAuthOrError(response);
         return;
     }
 

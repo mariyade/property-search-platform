@@ -38,14 +38,17 @@ def make_user(
     username="testuser",
     password="testpassword",
     is_active=True,
+    user_id=1,
 ):
-    return Users(
+    user = Users(
         username=username,
         email=f"{username}@example.com",
         hashed_password=bcrypt_context.hash(password),
         role="user",
         is_active=is_active,
     )
+    user.id = user_id
+    return user
 
 
 def test_authenticate_user_returns_user_for_valid_credentials():
@@ -92,8 +95,9 @@ def test_create_access_token_contains_expiry():
 @pytest.mark.asyncio
 async def test_get_current_user_returns_claims_for_valid_token():
     token = jwt.encode({"sub": "testuser", "id": 1, "role": "user"}, SECRET_KEY, ALGORITHM)
+    db = FakeDb(make_user())
 
-    user = await get_current_user(token=token)
+    user = await get_current_user(token=token, db=db)
 
     assert user == {"username": "testuser", "id": 1, "user_role": "user"}
 
@@ -103,7 +107,7 @@ async def test_get_current_user_rejects_token_without_subject():
     token = jwt.encode({"id": 1, "role": "user"}, SECRET_KEY, ALGORITHM)
 
     with pytest.raises(HTTPException) as exc:
-        await get_current_user(token=token)
+        await get_current_user(token=token, db=FakeDb())
 
     assert exc.value.status_code == status.HTTP_401_UNAUTHORIZED
 
@@ -113,6 +117,27 @@ async def test_get_current_user_rejects_token_without_user_id():
     token = jwt.encode({"sub": "testuser", "role": "user"}, SECRET_KEY, ALGORITHM)
 
     with pytest.raises(HTTPException) as exc:
-        await get_current_user(token=token)
+        await get_current_user(token=token, db=FakeDb())
+
+    assert exc.value.status_code == status.HTTP_401_UNAUTHORIZED
+
+
+@pytest.mark.asyncio
+async def test_get_current_user_rejects_token_for_missing_user():
+    token = jwt.encode({"sub": "testuser", "id": 45, "role": "user"}, SECRET_KEY, ALGORITHM)
+
+    with pytest.raises(HTTPException) as exc:
+        await get_current_user(token=token, db=FakeDb())
+
+    assert exc.value.status_code == status.HTTP_401_UNAUTHORIZED
+
+
+@pytest.mark.asyncio
+async def test_get_current_user_rejects_token_for_inactive_user():
+    token = jwt.encode({"sub": "inactive", "id": 1, "role": "user"}, SECRET_KEY, ALGORITHM)
+    db = FakeDb(make_user(username="inactive", is_active=False))
+
+    with pytest.raises(HTTPException) as exc:
+        await get_current_user(token=token, db=db)
 
     assert exc.value.status_code == status.HTTP_401_UNAUTHORIZED

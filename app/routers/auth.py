@@ -42,7 +42,10 @@ def create_access_token(username: str, user_id: int, role: str, expires_delta: t
     return jwt.encode(encode, SECRET_KEY, algorithm=ALGORITHM)
 
 
-async def get_current_user(token: Annotated[str, Depends(oauth2_bearer)]):
+async def get_current_user(
+    token: Annotated[str, Depends(oauth2_bearer)],
+    db: db_dependency,
+):
     try:
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
         username: str = payload.get("sub")
@@ -52,11 +55,26 @@ async def get_current_user(token: Annotated[str, Depends(oauth2_bearer)]):
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED, detail="Could not validate user."
             )
-        return {"username": username, "id": user_id, "user_role": user_role}
     except JWTError as exc:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED, detail="Could not validate user."
         ) from exc
+
+    user = (
+        db.query(Users)
+        .filter(
+            Users.id == user_id,
+            Users.username == username,
+            Users.is_active.is_(True),
+        )
+        .first()
+    )
+    if user is None or not user.is_active:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED, detail="Could not validate user."
+        )
+
+    return {"username": user.username, "id": user.id, "user_role": user.role}
 
 
 @router.post("/", status_code=status.HTTP_201_CREATED, response_model=MessageResponse)
