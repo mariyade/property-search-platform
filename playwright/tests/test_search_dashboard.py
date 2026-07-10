@@ -86,12 +86,14 @@ def stub_search_dashboard(page):
     page.route("**/search-runs/", handle_search_runs)
     page.route("**/search-runs/999/results?*", handle_results)
 
+
 @pytest.mark.e2e
 def test_real_search_run_can_be_viewed(browser_page, app_base_url, clean_test_user):
     run_id, search_page = create_search_run_from_form(browser_page, app_base_url)
 
     search_page.view_run(run_id)
     expect(browser_page.locator("#resultsMeta")).to_contain_text("Search run is still")
+
 
 @pytest.mark.e2e
 def test_real_search_run_can_be_deleted(browser_page, app_base_url, clean_test_user):
