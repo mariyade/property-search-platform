@@ -19,6 +19,8 @@ class SearchRunCreate(BaseModel):
     display_location_identifier: str
     result_index: int = Field(ge=0)
     max_pages: int = Field(default=1, gt=0, le=30)
+    mortgage_rate: float = Field(default=0.0515, ge=0, le=1)
+    ltv: float = Field(default=0.75, ge=0, le=1)
 
 
 class CreateUserRequest(BaseModel):
@@ -55,6 +57,8 @@ class SearchRunResponse(BaseModel):
     display_location_identifier: str
     result_index: int
     max_pages: int
+    mortgage_rate: float
+    ltv: float
     owner_id: int | None = None
     created_at: datetime
     started_at: datetime | None = None
@@ -72,6 +76,7 @@ class SearchRunResultItem(BaseModel):
     link: str | None = None
     date_last_updated: date | datetime | str | None = None
     estimated_annual_rent: float | None = None
+    stamp_duty: float | None = None
     gross_yield_percent: float | None = None
     net_yield_percent: float | None = None
 
@@ -82,6 +87,26 @@ class PaginatedSearchRunResults(BaseModel):
     limit: int
     offset: int
     items: list[SearchRunResultItem]
+
+
+class DealAgentRequest(BaseModel):
+    limit: int = Field(default=20, gt=0, le=20)
+    offset: int = Field(default=0, ge=0)
+    question: str | None = Field(default=None, max_length=500)
+
+
+class DealAgentResponse(BaseModel):
+    search_run_id: int
+    limit: int
+    offset: int
+    assumptions: dict
+    used_llm: bool
+    metrics: dict
+    deals: list[dict]
+    knowledge: list[str]
+    guardrails: dict
+    tool_trace: list[dict] = Field(default_factory=list)
+    explanation: dict
 
 
 class UserResponse(BaseModel):

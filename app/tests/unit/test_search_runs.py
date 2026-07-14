@@ -20,6 +20,8 @@ SEARCH_RUN_PAYLOAD = {
     "display_location_identifier": "undefined",
     "result_index": 0,
     "max_pages": 1,
+    "mortgage_rate": 0.0525,
+    "ltv": 0.8,
 }
 
 
@@ -44,6 +46,8 @@ def test_create_search_run_assigns_owner_id(monkeypatch):
     search_run = create_search_run_with_pipeline_trigger(db, request, owner_id=42)
 
     assert search_run.owner_id == 42
+    assert search_run.mortgage_rate == 0.0525
+    assert search_run.ltv == 0.8
 
 
 def test_create_search_run_persists_and_refreshes(monkeypatch):

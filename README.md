@@ -17,25 +17,39 @@ API docs: https://property-search-platform.onrender.com/docs
 ## Table of Contents
 
 - [Background](#background)
-- [Demo](#demo)
+- [AI Evaluation](#ai-evaluation)
 - [Scope](#scope)
 - [Technology](#technology)
 - [Architecture](#architecture)
 - [Data Sources](#data-sources)
-- [Data Pipeline Design](#data-pipeline-design)
 - [Data Storage](#data-storage)
 - [File Hierarchy](#file-hierarchy)
 - [Pre-requisites](#pre-requisites)
 - [Getting Started](#getting-started)
 - [Testing and Linting](#testing-and-linting)
+- [Testing Approach](#testing-approach)
 - [Deployment](#deployment)
-- [Contact](#contact)
 
 ## Background
 
 This project is a proof of concept evolving into a small MVP for property search and rental yield analysis. The application lets a user register, log in, create a property search, and receive calculated yield results after the scraping and analysis pipeline finishes.
 
 The key design goal is to keep slow scraping and data processing outside the web request. FastAPI creates a search run quickly, Redis queues the background job, and a Celery worker processes the search asynchronously.
+
+## AI Evaluation
+
+This project includes a small proof of concept for testing and evaluating an
+LLM-powered deal-analysis agent. The deal agent:
+
+- Analyses visible search results for a completed property search run
+- Validates request and response data with Pydantic
+- Checks input guardrails for prompt injection, PII, and secrets
+- Calls tools for yield metrics, risk flags, net-yield calculations, and RAG retrieval
+- Uses LangChain, OpenAI embeddings, and ChromaDB to retrieve local methodology notes
+- Returns a structured explanation validated with Pydantic
+
+If the LLM response is malformed JSON or does not match the expected Pydantic schema,
+the API returns an agent error instead of using an invalid answer.
 
 ## Scope
 
@@ -78,6 +92,7 @@ The project is developed using Python.
 - **Containerization:** Docker, Docker Compose
 - **Deployment:** Render
 - **Testing:** Pytest, Playwright
+- **AI evaluation:** DeepEval, OpenAI, LangChain, ChromaDB, Pydantic, Presidio
 - **Linting and formatting:** Ruff
 
 ## Architecture
@@ -206,6 +221,10 @@ All application data is stored in PostgreSQL.
 │   │   ├── search_run.py
 │   │   └── users.py
 │   ├── services
+│   │   ├── deal_agent.py
+│   │   ├── deal_agent_knowledge_base.py
+│   │   ├── deal_agent_llm.py
+│   │   ├── deal_agent_tools.py
 │   │   ├── search_pipeline.py
 │   │   ├── search_run_data.py
 │   │   ├── search_run_service.py
@@ -218,10 +237,15 @@ All application data is stored in PostgreSQL.
 │   ├── static
 │   └── tests
 │       ├── unit
-│       └── integration
+│       ├── integration
+│       └── evaluation
+├── datasets
+│   └── deal_agent
+├── docs
 └── .github
     └── workflows
-        └── ci.yml
+        ├── ci.yml
+        └── playwright.yml
 ```
 
 The `app/routers` folder contains the FastAPI route definitions.
@@ -233,6 +257,9 @@ The `app/tasks` folder contains Celery task entrypoints.
 The `app/tests/unit` folder contains focused unit tests.
 
 The `app/tests/integration` folder contains route and database integration tests.
+
+The `app/tests/evaluation` folder contains AI evaluation tests for final agent answers
+and RAG retrieval quality.
 
 ## Pre-requisites
 
@@ -282,6 +309,21 @@ Run integration tests:
 .venv311/bin/python -m pytest -m integration
 ```
 
+Run all AI evaluation tests:
+
+```bash
+.venv311/bin/python -m pytest -m evaluation
+```
+
+The DeepEval quality checks need `deepeval` installed and an `OPENAI_API_KEY` available.
+If those dependencies are missing, pytest skips the evaluation tests.
+
+To save a local pytest HTML report:
+
+```bash
+.venv311/bin/python -m pytest -m evaluation --html=evaluation_results/pytest_report.html --self-contained-html
+```
+
 Run E2E Playwright tests:
 
 The E2E Playwright tests cover
@@ -292,7 +334,7 @@ registration, login, logout, real search-run view/delete behaviour and a stubbed
 .venv311/bin/python -m pytest playwright/tests
 ```
 
-To ruun only the register/login tests:
+To run only the register/login tests:
 
 ```bash
 .venv311/bin/python -m pytest playwright/tests/test_register_login.py
@@ -305,6 +347,20 @@ Generate a Playwright HTML report:
 ```
 
 The CI workflow runs formatting checks, linting, unit tests, and integration tests on GitHub Actions.
+
+## Testing Approach
+
+- Unit tests cover deterministic internals: schemas, auth helpers, route helpers,
+  guardrails, tool dispatch, yield calculations, and agent tool-loop wiring.
+- Integration tests verify API routes, dependency wiring, authentication, search-run
+  behaviour, and database-backed responses.
+- AI evaluation treats the deal agent as a black box and scores final behaviour against
+  golden cases in `datasets/deal_agent/agent_summary_goldens.json`.
+- Component-level RAG evaluation checks retrieval quality using
+  `datasets/deal_agent/rag_retrieval_goldens.json`.
+
+Unit and integration tests run without an API key. DeepEval evaluation tests require an
+`OPENAI_API_KEY` because they use LLM-based metrics and OpenAI embeddings.
 
 ## Deployment
 

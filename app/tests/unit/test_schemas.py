@@ -32,6 +32,20 @@ def test_search_run_create_defaults_max_pages():
     assert search_run.max_pages == 1
 
 
+def test_search_run_create_defaults_mortgage_assumptions():
+    search_run = SearchRunCreate(**VALID_SEARCH_RUN)
+
+    assert search_run.mortgage_rate == 0.0515
+    assert search_run.ltv == 0.75
+
+
+def test_search_run_create_rejects_ltv_above_100_percent():
+    payload = VALID_SEARCH_RUN | {"ltv": 1.1}
+
+    with pytest.raises(ValidationError):
+        SearchRunCreate(**payload)
+
+
 def test_search_run_create_allows_missing_optional_price_bounds():
     payload = VALID_SEARCH_RUN | {"min_price": None, "max_price": None}
 

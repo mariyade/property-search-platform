@@ -19,6 +19,8 @@ SEARCH_RUN_PAYLOAD = {
     "display_location_identifier": "undefined",
     "result_index": 0,
     "max_pages": 1,
+    "mortgage_rate": 0.0525,
+    "ltv": 0.8,
 }
 
 
@@ -43,6 +45,8 @@ def test_create_search_run_sets_owner_id(monkeypatch, test_user, auth_override):
 
     assert response.status_code == status.HTTP_201_CREATED
     assert response.json()["owner_id"] == test_user.id
+    assert response.json()["mortgage_rate"] == 0.0525
+    assert response.json()["ltv"] == 0.8
 
 
 def test_results_return_202_when_search_run_not_complete(search_run, auth_override):

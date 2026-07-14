@@ -54,6 +54,8 @@ def upgrade():
         sa.Column("display_location_identifier", sa.String(), nullable=False),
         sa.Column("result_index", sa.Integer(), nullable=False),
         sa.Column("max_pages", sa.Integer(), nullable=False, default=1),
+        sa.Column("mortgage_rate", sa.Float(), nullable=False, default=0.0515),
+        sa.Column("ltv", sa.Float(), nullable=False, default=0.75),
         sa.Column("owner_id", sa.Integer(), sa.ForeignKey("users.id")),
         sa.Column("created_at", sa.DateTime(), nullable=False),
         sa.Column("started_at", sa.DateTime()),

@@ -74,11 +74,20 @@ body {
     background: #f9fbfc;
 }
 
+.agent-panel {
+    margin: 14px 0;
+    padding: 16px;
+    border: 1px solid #dbe2e8;
+    border-radius: 6px;
+    background: #ffffff;
+}
+
 .dashboard-header {
     margin-bottom: 14px;
 }
 
-.dashboard-header h3 {
+.dashboard-header h3,
+.agent-panel h3 {
     margin: 0;
     font-size: 1.05rem;
 }
@@ -112,6 +121,29 @@ body {
     display: block;
     margin-top: 3px;
     overflow-wrap: anywhere;
+}
+
+.agent-summary-output {
+    margin-top: 12px;
+}
+
+.agent-summary-section {
+    padding-top: 10px;
+    border-top: 1px solid #e7edf2;
+}
+
+.agent-summary-section:first-child {
+    border-top: 0;
+    padding-top: 0;
+}
+
+.agent-summary-section p {
+    margin: 4px 0 10px;
+}
+
+.agent-summary-section ul {
+    margin: 6px 0 0;
+    padding-left: 20px;
 }
 
 .calculation-note {

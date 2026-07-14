@@ -39,7 +39,6 @@ async def read_search_run(
     user: user_dependency,
     run_id: int = Path(gt=0),
 ):
-
     run_model = (
         db.query(SearchRun)
         .filter(
@@ -133,6 +132,7 @@ async def read_search_run_results(
                 "link": row.get("Link"),
                 "date_last_updated": row.get("DateLastUpdated"),
                 "estimated_annual_rent": round_value(row.get("EstimatedAnnualRent")),
+                "stamp_duty": round_value(row.get("Stamp_Duty")),
                 "gross_yield_percent": round_value(row.get("Gross_Yield_%")),
                 "net_yield_percent": round_value(row.get("Net_Yield_%")),
             }

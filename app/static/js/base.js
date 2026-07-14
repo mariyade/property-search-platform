@@ -26,6 +26,7 @@ document.addEventListener("DOMContentLoaded", function () {
         document.getElementById("refreshRunsButton").addEventListener("click", loadSearchRuns);
         document.getElementById("previousResultsButton").addEventListener("click", previousResults);
         document.getElementById("nextResultsButton").addEventListener("click", nextResults);
+        document.getElementById("agentSummaryButton").addEventListener("click", loadAgentSummary);
         loadSearchRuns();
     }
 });
@@ -113,7 +114,9 @@ async function createSearchRun(event) {
         transaction_type: data.transaction_type,
         display_location_identifier: data.display_location_identifier,
         result_index: toInt(data.result_index),
-        max_pages: toInt(data.max_pages)
+        max_pages: toInt(data.max_pages),
+        mortgage_rate: percentInputToDecimal(data.mortgage_rate),
+        ltv: percentInputToDecimal(data.ltv)
     };
 
     const response = await fetch("/search-runs/", {
@@ -192,6 +195,7 @@ async function deleteSearchRun(runId) {
         resultsState.total = 0;
         document.getElementById("resultsTable").innerHTML = "";
         setResultsMeta("");
+        resetAgentSummary();
         resetDealsDashboard();
     }
 
@@ -211,6 +215,7 @@ async function loadResults(runId, offset) {
         const data = await response.json();
         setResultsMeta(data.detail);
         document.getElementById("resultsTable").innerHTML = "";
+        resetAgentSummary();
         resetDealsDashboard();
         return;
     }
@@ -222,6 +227,7 @@ async function loadResults(runId, offset) {
 
     const data = await response.json();
     resultsState.total = data.total;
+    resetAgentSummary();
     renderResults(data);
 }
 
@@ -253,6 +259,9 @@ function updateDealsDashboard(data) {
     const run = searchRunsById.get(data.search_run_id);
     document.getElementById("dashboardPostcode").textContent = run?.search_location || "--";
     document.getElementById("dashboardMaxPrice").textContent = money(run?.max_price) || "--";
+    document.getElementById("agentSummaryStatus").textContent = run
+        ? `Using run assumptions: ${percent(run.mortgage_rate * 100)} mortgage, ${percent(run.ltv * 100)} LTV`
+        : "";
 
     const rooms = data.items
         .map(function (item) {
@@ -288,6 +297,90 @@ function nextResults() {
         return;
     }
     loadResults(resultsState.runId, nextOffset);
+}
+
+async function loadAgentSummary() {
+    if (!resultsState.runId) {
+        setAgentSummaryStatus("Select a completed run first.");
+        return;
+    }
+
+    setAgentSummaryStatus("Analyzing visible deals...");
+    const question = document.getElementById("agentQuestion").value.trim();
+
+    const response = await fetch(`/search-runs/${resultsState.runId}/agent-summary`, {
+        method: "POST",
+        headers: authJsonHeaders(),
+        body: JSON.stringify({
+            limit: resultsState.limit,
+            offset: resultsState.offset,
+            question: question || null
+        })
+    });
+
+    if (response.status === 202 || response.status === 409) {
+        const data = await response.json();
+        setAgentSummaryStatus(data.detail);
+        return;
+    }
+
+    if (!response.ok) {
+        setAgentSummaryStatus("");
+        await handleAuthOrError(response);
+        return;
+    }
+
+    const data = await response.json();
+    renderAgentSummary(data);
+}
+
+function renderAgentSummary(data) {
+    const output = document.getElementById("agentSummaryOutput");
+    const explanation = data.explanation || {};
+    const nextChecks = explanation.next_checks || [];
+
+    setAgentSummaryStatus(
+        `LLM analysis · ${data.metrics.deal_count || 0} deals`
+    );
+    output.innerHTML = `
+        ${explanation.answer ? `
+        <div class="agent-summary-section">
+            <strong>Answer</strong>
+            <p>${escapeHtml(explanation.answer)}</p>
+        </div>
+        ` : ""}
+        <div class="agent-summary-section">
+            <strong>Summary</strong>
+            <p>${escapeHtml(explanation.summary || "")}</p>
+        </div>
+        <div class="agent-summary-section">
+            <strong>Best deal</strong>
+            <p>${escapeHtml(explanation.best_deal || "")}</p>
+        </div>
+        <div class="agent-summary-section">
+            <strong>Mortgage view</strong>
+            <p>${escapeHtml(explanation.mortgage_commentary || "")}</p>
+        </div>
+        <div class="agent-summary-section">
+            <strong>Risk</strong>
+            <p>${escapeHtml(explanation.risk_commentary || "")}</p>
+        </div>
+        <div class="agent-summary-section">
+            <strong>Next checks</strong>
+            <ul>${nextChecks.map(function (item) {
+                return `<li>${escapeHtml(item)}</li>`;
+            }).join("")}</ul>
+        </div>
+    `;
+}
+
+function resetAgentSummary() {
+    setAgentSummaryStatus("");
+    document.getElementById("agentSummaryOutput").innerHTML = "";
+}
+
+function setAgentSummaryStatus(message) {
+    document.getElementById("agentSummaryStatus").textContent = message;
 }
 
 function authHeaders() {
@@ -352,6 +445,10 @@ function toInt(value) {
 
 function toFloat(value) {
     return parseFloat(value);
+}
+
+function percentInputToDecimal(value) {
+    return toFloat(value) / 100;
 }
 
 function money(value) {

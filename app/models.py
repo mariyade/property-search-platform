@@ -26,6 +26,8 @@ class SearchRun(Base):
     display_location_identifier = Column(String, nullable=False)
     result_index = Column(Integer, nullable=False)
     max_pages = Column(Integer, default=1, nullable=False)
+    mortgage_rate = Column(Float, default=0.0515, nullable=False)
+    ltv = Column(Float, default=0.75, nullable=False)
     owner_id = Column(Integer, ForeignKey("users.id"))
 
     created_at = Column(DateTime, default=datetime.utcnow, nullable=False)

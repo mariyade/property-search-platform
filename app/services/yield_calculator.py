@@ -1,12 +1,18 @@
 def calculate_stamp_duty(price, is_buy_to_let=True):
-    surcharge = 0.03 * price if is_buy_to_let else 0
+    if price is None or price <= 0:
+        return 0
+
     base = 0
+    if price > 125000:
+        base += 0.02 * min(price - 125000, 125000)
     if price > 250000:
         base += 0.05 * min(price - 250000, 675000)
     if price > 925000:
         base += 0.10 * min(price - 925000, 575000)
     if price > 1500000:
         base += 0.12 * (price - 1500000)
+
+    surcharge = 0.05 * price if is_buy_to_let else 0
     return base + surcharge
 
 
@@ -39,7 +45,9 @@ def calculate_net_yield(
     maintenance_cost = df["Price"] * annual_maintenance_rate
     management_cost = rent_after_voids * management_fee_rate
     mortgage_interest = df["Price"] * ltv * mortgage_rate
+    df["Stamp_Duty"] = df["Price"].apply(calculate_stamp_duty)
+    total_purchase_cost = df["Price"] + df["Stamp_Duty"]
 
     net_income = rent_after_voids - maintenance_cost - management_cost - mortgage_interest
-    df["Net_Yield_%"] = (net_income / df["Price"]) * 100
+    df["Net_Yield_%"] = (net_income / total_purchase_cost) * 100
     return df

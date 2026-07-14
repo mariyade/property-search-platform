@@ -3,7 +3,8 @@ testpaths = ["app/tests"]
 pythonpath = [".", "playwright"]
 markers = [
     "unit: focused tests for functions, schemas, and services",
-    "integration: tests that exercise API routes, dependency wiring, or the test database",
+    "integration: tests that exercise API routes, dependency wiring, the test database",
+    "evaluation: DeepEval checks for agent response quality",
     "e2e: browser tests that exercise the application through the UI",
 ]
 

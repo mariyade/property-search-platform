@@ -1,0 +1,18 @@
+[
+  {
+    "input": "net yield formula mortgage interest ltv",
+    "expected_output": "Net yield should be calculated from estimated annual rent after voids, maintenance, management fees, and mortgage interest based on price, LTV, and mortgage rate."
+  },
+  {
+    "input": "cash buyer ltv mortgage interest zero",
+    "expected_output": "For a cash buyer, LTV and mortgage rate can be set to zero so mortgage interest is zero, while operating costs still need checking."
+  },
+  {
+    "input": "service charge ground rent lease length missing",
+    "expected_output": "The current model does not include service charge, ground rent, lease length, lease extension cost, tax position, buyer-specific SDLT reliefs or exemptions, refurbishment, licensing, or local demand."
+  },
+  {
+    "input": "15 percent deposit buy to let ltv lender criteria",
+    "expected_output": "A 15% deposit implies 85% LTV, but buy-to-let lender availability and affordability need checking and should not be treated as guaranteed."
+  }
+]

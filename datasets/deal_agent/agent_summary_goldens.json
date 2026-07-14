@@ -1,0 +1,34 @@
+[
+  {
+    "input": "What net yield would be if my LTV is 90% and interest is 5% for Best Street?",
+    "expected_output": "The answer should recalculate the selected deal using the requested LTV and interest rate, then compare it with the dashboard yield.",
+    "additional_metadata": {
+      "scenario": "what_if_net_yield",
+      "agent_input": {
+        "search_run_id": 1,
+        "mortgage_rate": 0.02,
+        "ltv": 0.6,
+        "question": "What net yield would be if my LTV is 90% and interest is 5% for Best Street?",
+        "limit": 20,
+        "offset": 0
+      },
+      "context_query": "net yield formula mortgage interest ltv"
+    }
+  },
+  {
+    "input": "How does the visible set look as a cash buyer?",
+    "expected_output": "The answer should explain that cash-buyer analysis uses 0% LTV and zero mortgage interest, while other operating costs still matter.",
+    "additional_metadata": {
+      "scenario": "cash_buyer",
+      "agent_input": {
+        "search_run_id": 1,
+        "mortgage_rate": 0,
+        "ltv": 0,
+        "question": "How does the visible set look as a cash buyer?",
+        "limit": 20,
+        "offset": 0
+      },
+      "context_query": "cash buyer ltv mortgage interest zero"
+    }
+  }
+]

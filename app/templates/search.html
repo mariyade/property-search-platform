@@ -76,6 +76,17 @@
                 </div>
             </div>
 
+            <div class="form-row">
+                <div class="form-group col-md-3">
+                    <label for="mortgage_rate">Mortgage rate %</label>
+                    <input id="mortgage_rate" name="mortgage_rate" type="number" min="0" max="100" step="0.01" class="form-control" value="5.15" required>
+                </div>
+                <div class="form-group col-md-3">
+                    <label for="ltv">LTV %</label>
+                    <input id="ltv" name="ltv" type="number" min="0" max="100" step="1" class="form-control" value="75" required>
+                </div>
+            </div>
+
             <input type="hidden" name="channel" value="BUY">
             <input type="hidden" name="transaction_type" value="BUY">
             <input type="hidden" name="display_location_identifier" value="undefined">
@@ -135,15 +146,30 @@
                     </div>
                 </div>
                 <div class="dashboard-ai-note">
-                    <span aria-hidden="true">⭐</span> AI recommendation: to be added later
+                    <span aria-hidden="true">⭐</span> Deal agent uses completed results, mortgage assumptions,
+                    risk checks, and methodology notes.
                 </div>
+            </div>
+            <div class="agent-panel">
+                <div class="panel-heading">
+                    <h3>Deal agent</h3>
+                    <button type="button" class="btn btn-outline-primary btn-sm" id="agentSummaryButton">Analyze</button>
+                </div>
+                <div class="form-row">
+                    <div class="form-group col-md-12">
+                        <label for="agentQuestion">Question</label>
+                        <input id="agentQuestion" class="form-control" placeholder="Optional">
+                    </div>
+                </div>
+                <div id="agentSummaryStatus" class="results-meta"></div>
+                <div id="agentSummaryOutput" class="agent-summary-output"></div>
             </div>
             <p class="calculation-note">
                 Gross yield = estimated annual rent / price.
-            <p class="calculation-note">
             </p>
+            <p class="calculation-note">
                 Net yield = annual rent after 5% void time, minus 1% maintenance, 10% management fee,
-                and mortgage interest estimated at 75% LTV and 5.15% rate, then divided by price.
+                and mortgage interest estimated from the search-run assumptions, then divided by price.
             </p>
             <div class="table-responsive">
                 <table class="table table-sm table-hover">

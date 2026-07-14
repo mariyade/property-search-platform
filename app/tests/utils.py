@@ -33,6 +33,7 @@ with engine.begin() as connection:
                 "Link" TEXT,
                 "DateLastUpdated" TEXT,
                 "EstimatedAnnualRent" FLOAT,
+                "Stamp_Duty" FLOAT,
                 "Gross_Yield_%" FLOAT,
                 "Net_Yield_%" FLOAT
             )
@@ -136,6 +137,8 @@ def search_run(test_user):
         display_location_identifier="undefined",
         result_index=0,
         max_pages=1,
+        mortgage_rate=0.0515,
+        ltv=0.75,
     )
     db = TestingSessionLocal()
     db.add(run)

@@ -1,5 +1,7 @@
+*.DS_Store
 keys/
-*.json  
+*.json
+!datasets/**/*.json
 *.tfstate
 *.tfstate.*
 .terraform/
@@ -10,8 +12,16 @@ crash.log
 *.log
 .venv*/
 __pycache__/
+*.py[cod]
+.pytest_cache/
+.ruff_cache/
 playwright/test-results/
 playwright/.pytest_cache/
 playwright/reports/
-spark-app/data_land_registry/*.csv
+evaluation_results/
+.deepeval/
+chroma_db/
+logs/
 output/*
+.env
+data/raw/*

@@ -61,6 +61,7 @@ def clean_search_listings(search_run_id: int):
 
 
 def calculate_search_yields(search_run_id: int):
+    search_run = load_search_run(search_run_id)
     sale_df = load_from_db("clean_search_run_sale_listings")
     rent_df = load_from_db("clean_search_run_rent_listings")
 
@@ -69,7 +70,11 @@ def calculate_search_yields(search_run_id: int):
 
     avg_rent_per_postcode_room = rent_df.groupby(["Postcode", "Rooms"])["Price"].mean().to_dict()
     result_df = calculate_gross_yield(sale_df, avg_rent_per_postcode_room)
-    result_df = calculate_net_yield(result_df)
+    result_df = calculate_net_yield(
+        result_df,
+        mortgage_rate=search_run["mortgage_rate"],
+        ltv=search_run["ltv"],
+    )
 
     if "Gross_Yield_%" in result_df.columns:
         result_df["Gross_Yield_%"] = result_df["Gross_Yield_%"].round(2)
