@@ -1,5 +1,3 @@
-import pytest
-
 from app.services.guardrails import (
     PromptInjectionGuard,
     SecretsGuard,
@@ -51,18 +49,6 @@ def test_secrets_guard_allows_postcodes_and_prices():
     result = SecretsGuard().check("Compare E1 1LF and SE1 7PB with prices 120000 and 300000.")
 
     assert result.passed is True
-
-
-def test_pii_guard_blocks_email_when_presidio_is_available():
-    pytest.importorskip("presidio_analyzer")
-    pytest.importorskip("presidio_anonymizer")
-
-    from app.services.guardrails.input.pii_guard import PIIGuard
-
-    result = PIIGuard().check("Please email me at investor@example.com")
-
-    assert result.passed is False
-    assert result.guard == "pii"
 
 
 def test_run_input_guardrails_returns_first_failure():

@@ -43,7 +43,7 @@ LLM-powered deal-analysis agent. The deal agent:
 
 - Analyses visible search results for a completed property search run
 - Validates request and response data with Pydantic
-- Checks input guardrails for prompt injection, PII, and secrets
+- Checks input guardrails for prompt injection and secrets
 - Calls tools for yield metrics, risk flags, net-yield calculations, and RAG retrieval
 - Uses LangChain, OpenAI embeddings, and ChromaDB to retrieve local methodology notes
 - Returns a structured explanation validated with Pydantic
@@ -92,7 +92,7 @@ The project is developed using Python.
 - **Containerization:** Docker, Docker Compose
 - **Deployment:** Render
 - **Testing:** Pytest, Playwright
-- **AI evaluation:** DeepEval, OpenAI, LangChain, ChromaDB, Pydantic, Presidio
+- **AI evaluation:** DeepEval, OpenAI, LangChain, ChromaDB, Pydantic
 - **Linting and formatting:** Ruff
 
 ## Architecture

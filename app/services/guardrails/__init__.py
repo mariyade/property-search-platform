@@ -3,15 +3,7 @@ from app.services.guardrails.input import PromptInjectionGuard, SecretsGuard
 
 
 def build_default_input_guards() -> tuple[InputGuard, ...]:
-    guards: list[InputGuard] = [PromptInjectionGuard()]
-    try:
-        from app.services.guardrails.input.pii_guard import PIIGuard
-
-        guards.append(PIIGuard())
-    except (ImportError, OSError):
-        pass
-    guards.append(SecretsGuard())
-    return tuple(guards)
+    return (PromptInjectionGuard(), SecretsGuard())
 
 
 DEFAULT_INPUT_GUARDS: tuple[InputGuard, ...] = build_default_input_guards()

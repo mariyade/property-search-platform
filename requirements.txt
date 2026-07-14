@@ -18,9 +18,6 @@ playwright
 pytest-playwright
 pytest-html
 deepeval
-presidio-analyzer
-presidio-anonymizer
-spacy
 httpx
 pre-commit
 ruff

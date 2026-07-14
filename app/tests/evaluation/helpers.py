@@ -81,7 +81,7 @@ def retrieved_context(query: str) -> list[str]:
     result = execute_tool_call(
         ToolCall(
             name="retrieve_methodology_notes",
-            arguments=json.dumps({"query": query, "limit": 1}),
+            arguments=json.dumps({"query": query, "limit": 4}),
             id="eval_retrieve_context",
         )
     )
